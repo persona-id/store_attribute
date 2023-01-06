@@ -2,6 +2,8 @@
 
 ## master
 
+- Register store_attributes as attributes. ([@rickcsong](https://github.com/rickcsong))
+
 ## 2.0.0 (2024-12-12)
 
 - **Breaking:** The `store_attribute_unset_values_fallback_to_default` option is now true by default, meaning that the default value will be returned when the attribute key is not present in the serialized value.
