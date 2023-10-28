@@ -322,7 +322,7 @@ describe StoreAttribute do
 
   context "dirty tracking" do
     let(:user) { User.create! }
-    let(:now) { Time.now.utc }
+    let(:now) { Time.now }
 
     before do
       user.price = "$ 123"
@@ -401,7 +401,7 @@ describe StoreAttribute do
       expect(reloaded_user.changed?).to be false
     end
 
-    # https://github.com/palkan/store_attribute/issues/19
+    # https://github.com/palkan/store_as2ttribute/issues/19
     it "without defaults" do
       user = UserWithoutDefaults.new
       user.birthday = "2019-06-26"
@@ -426,6 +426,14 @@ describe StoreAttribute do
       jamie = klass.create!(jparams: {})
 
       expect(jamie.changes).to eq({})
+    end
+
+    it "works if store attribute column is set to nil" do
+      user.save!
+      user.hdata = nil
+
+      expect(user.visible_changed?).to be true
+      expect(user.login_at_changed?).to be true
     end
   end
 
