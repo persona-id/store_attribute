@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency "activerecord", ">= 6.0"
 
-  s.add_development_dependency "pg", ">= 0.18"
+  s.add_development_dependency "mysql2", "~> 0.5.6"
   s.add_development_dependency "rake", ">= 13.0"
   s.add_development_dependency "rspec", ">= 3.5.0"
 end

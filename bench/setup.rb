@@ -8,7 +8,7 @@ end
 gemfile(true) do
   source 'https://rubygems.org'
   gem 'activerecord', '~>4.2'
-  gem 'pg'
+  gem 'mysql2'
   gem 'activerecord-typedstore', require: false
   gem 'pry-byebug'
   gem 'benchmark-ips'
@@ -41,11 +41,11 @@ module Bench
   def setup_db
     ActiveRecord::Schema.define do
       create_table :users, force: true do |t|
-        t.jsonb :data
+        t.json :data
       end
 
       create_table :loosers, force: true do |t|
-        t.jsonb :data
+        t.json :data
       end
     end
   end

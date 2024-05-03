@@ -7,12 +7,12 @@ connection.drop_table "users", if_exists: true
 connection.transaction do
   connection.create_table("users") do |t|
     t.string :name
-    t.jsonb :extra
+    t.json :extra
     t.string :dyndate
     t.string :statdate
-    t.jsonb :jparams, default: {}, null: false
+    t.json :jparams, default: lambda { "('{}')" }, null: false
     t.text :custom
-    t.hstore :hdata, default: {}, null: false
+    t.json :hdata, default: lambda { "('{}')" }, null: false
   end
 end
 

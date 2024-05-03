@@ -26,7 +26,7 @@ describe StoreAttribute do
   let(:dynamic_date) { User::TODAY_DATE }
   let(:time) { DateTime.new(2015, 2, 14, 17, 0, 0) }
   let(:time_str) { "2015-02-14 17:00" }
-  let(:time_str_utc) { "2015-02-14 17:00:00 UTC" }
+  let(:time_str_utc) { "2015-02-14T17:00:00.000Z" }
 
   context "hstore" do
     it "typecasts on build" do
@@ -59,7 +59,7 @@ describe StoreAttribute do
       expect(user.login_at).to eq time
 
       ron = RawUser.find(user.id)
-      expect(ron.hdata["visible"]).to eq "false"
+      expect(ron.hdata["visible"]).to be false
       expect(ron.hdata["login_at"]).to eq time_str_utc
     end
 
@@ -76,7 +76,7 @@ describe StoreAttribute do
     end
   end
 
-  context "jsonb" do
+  context "json" do
     it "typecasts on build" do
       jamie = User.new(
         active: "true",
@@ -127,7 +127,7 @@ describe StoreAttribute do
         "jparams = '{" \
           '"active":"1",' \
           '"salary":"12.02"' \
-        "}'::jsonb"
+        "}'"
       )
 
       jamie = User.find(jamie.id)
@@ -256,19 +256,49 @@ describe StoreAttribute do
   end
 
   context "attributes" do
-    it "should register all store_attributes as attributes" do
+    it "should return store_attributes as attributes" do
+      expect(User.attribute_names).to include(
+        "active",
+        "salary",
+        "birthday",
+        "static_date",
+        "dynamic_date",
+        "empty_date",
+        "inner_json",
+        "price",
+        "visible",
+        "ratio",
+        "login_at",
+      )
       expect(User.attribute_types).to include(
         "active" => an_instance_of(ActiveModel::Type::Boolean),
         "salary" => an_instance_of(ActiveModel::Type::Integer),
-        "birthday" => an_instance_of(ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Date),
-        "static_date" => an_instance_of(ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Date),
-        "dynamic_date" => an_instance_of(ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Date),
-        "empty_date" => an_instance_of(ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Date),
+        "birthday" => an_instance_of(ActiveRecord::Type::Date),
+        "static_date" => an_instance_of(ActiveRecord::Type::Date),
+        "dynamic_date" => an_instance_of(ActiveRecord::Type::Date),
+        "empty_date" => an_instance_of(ActiveRecord::Type::Date),
         "inner_json" => an_instance_of(ActiveRecord::Type::Json),
         "price" => an_instance_of(MoneyType),
         "visible" => an_instance_of(ActiveModel::Type::Boolean),
         "ratio" => an_instance_of(ActiveModel::Type::Integer),
-        "login_at" => an_instance_of(ActiveRecord::ConnectionAdapters::PostgreSQL::OID::DateTime)
+        "login_at" => an_instance_of(ActiveRecord::Type::DateTime),
+      )
+    end
+
+    it "should properly hydrate all attributes from the store_attribute" do
+      jamie = User.create!(active: true, birthday: "2019-06-26")
+      expect(jamie.attributes).to include(
+        'active' => jamie.active,
+        'salary' => jamie.salary,
+        'birthday' => jamie.birthday,
+        'static_date' => jamie.static_date,
+        'dynamic_date' => jamie.dynamic_date,
+        'empty_date' => jamie.empty_date,
+        'inner_json' => jamie.inner_json,
+        'price' => jamie.price,
+        'visible' => jamie.visible,
+        'ratio' => jamie.ratio,
+        'login_at' => jamie.login_at,
       )
     end
   end
@@ -280,7 +310,7 @@ describe StoreAttribute do
     before do
       user.price = "$ 123"
       user.visible = false
-      user.login_at = now.to_fs(:db)
+      user.login_at = now.to_fs
     end
 
     it "should report changes" do
@@ -297,7 +327,7 @@ describe StoreAttribute do
       expect(user.login_at_change[1].to_i).to eq now.to_i
       expect(user.login_at_was).to eq nil
 
-      expect(user.changes["hdata"]).to eq [{}, {"login_at" => now.to_fs(:db), "visible" => false}]
+      expect(user.changes["hdata"]).to eq [{}, {"login_at" => now.to_fs, "visible" => false}]
     end
 
     it "should report saved changes" do

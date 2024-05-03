@@ -125,15 +125,19 @@ module ActiveRecord
         _store_local_stored_attribute(store_name, name, type, **options)
       end
 
+      def attribute_types
+        if @attribute_types.nil? && _local_typed_stored_attributes.present?
+          _local_typed_stored_attributes.values.reduce(&:merge).transform_values(&:first).each do |k, v|
+            super[k] = v
+          end
+        end
+
+        super
+      end
+
       def _store_local_stored_attribute(store_name, key, cast_type, default: Type::TypedStore::UNDEFINED, **options) # :nodoc:
         cast_type = ActiveRecord::Type.lookup(cast_type, **options) if cast_type.is_a?(Symbol)
         _local_typed_stored_attributes[store_name][key] = [cast_type, default]
-        if default == Type::TypedStore::UNDEFINED
-          # default cannot be an Object, so just leave as nil instead if default is UNDEFINED.
-          attribute(key, cast_type)
-        else
-          attribute(key, cast_type, default: default)
-        end
       end
 
       def _local_typed_stored_attributes?

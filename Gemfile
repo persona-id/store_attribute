@@ -4,7 +4,7 @@ source "https://rubygems.org"
 
 gemspec
 
-gem "debug", platform: :mri
+gem "pry"
 
 eval_gemfile "gemfiles/rubocop.gemfile"
 
