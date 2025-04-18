@@ -133,6 +133,13 @@ module ActiveRecord
 
         _local_typed_stored_attributes[store_name][:owner] = self if options.key?(:default) || !_local_typed_stored_attributes?
         _local_typed_stored_attributes[store_name][:types][name] = [type, options]
+
+        if options[:default] == Type::TypedStore::UNDEFINED
+          # default cannot be an Object, so just leave as nil instead if default is UNDEFINED.
+          attribute(name, type)
+        else
+          attribute(name, type, default: options[:default])
+        end
       end
 
       def store_attribute_unset_values_fallback_to_default
@@ -144,17 +151,6 @@ module ActiveRecord
           else
             StoreAttribute.store_attribute_unset_values_fallback_to_default
           end
-      end
-
-      def _store_local_stored_attribute(store_name, key, cast_type, default: Type::TypedStore::UNDEFINED, **options) # :nodoc:
-        cast_type = ActiveRecord::Type.lookup(cast_type, **options) if cast_type.is_a?(Symbol)
-        _local_typed_stored_attributes[store_name][key] = [cast_type, default]
-        if default == Type::TypedStore::UNDEFINED
-          # default cannot be an Object, so just leave as nil instead if default is UNDEFINED.
-          attribute(key, cast_type)
-        else
-          attribute(key, cast_type, default: default)
-        end
       end
 
       def _local_typed_stored_attributes?
