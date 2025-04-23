@@ -30,6 +30,8 @@ class User < ActiveRecord::Base
   DEFAULT_DATE = ::Date.new(2019, 7, 17)
   TODAY_DATE = ::Date.today
 
+  self.store_attribute_register_attributes = true
+
   attribute :dyndate, :datetime, default: -> { ::Time.now }
   attribute :statdate, :datetime, default: ::Time.now
 

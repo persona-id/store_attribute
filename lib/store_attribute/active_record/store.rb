@@ -11,6 +11,7 @@ module ActiveRecord
       alias_method :_orig_store_accessor_without_types, :store_accessor
 
       attr_writer :store_attribute_unset_values_fallback_to_default
+      attr_writer :store_attribute_register_attributes
 
       # Defines store on this model.
       #
@@ -133,6 +134,16 @@ module ActiveRecord
 
         _local_typed_stored_attributes[store_name][:owner] = self if options.key?(:default) || !_local_typed_stored_attributes?
         _local_typed_stored_attributes[store_name][:types][name] = [type, options]
+        if store_attribute_register_attributes? && type != :value
+          # Don't register attribute if it's untyped (type == :value)
+          attribute(name, type, default: options[:default])
+        end
+      end
+
+      def _register_attribute(name, type, **options)
+        # type = ActiveRecord::Type.lookup(type) if type.is_a?(Symbol)
+
+        # attribute(name, type, default: options.dig(:default))
       end
 
       def store_attribute_unset_values_fallback_to_default
@@ -143,6 +154,17 @@ module ActiveRecord
             superclass.store_attribute_unset_values_fallback_to_default
           else
             StoreAttribute.store_attribute_unset_values_fallback_to_default
+          end
+      end
+
+      def store_attribute_register_attributes?
+        return @store_attribute_register_attributes if instance_variable_defined?(:@store_attribute_register_attributes)
+
+        @store_attribute_register_attributes =
+          if superclass.respond_to?(:store_attribute_register_attributes)
+            superclass.store_attribute_register_attributes
+          else
+            StoreAttribute.store_attribute_register_attributes
           end
       end
 
