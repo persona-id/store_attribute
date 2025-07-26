@@ -136,17 +136,19 @@ module ActiveRecord
         _local_typed_stored_attributes[store_name][:types][name] = [type, options]
 
         if store_attribute_register_attributes
+          attr_options = options.except(:default)
+
           cast_type =
             if type == :value
-              ActiveModel::Type::Value.new(**options.except(:default))
+              ActiveModel::Type::Value.new(**attr_options)
             elsif type.is_a?(Symbol)
               # The type is a symbol, we need to look it up
-              ActiveRecord::Type.lookup(type, **options.except(:default))
+              ActiveRecord::Type.lookup(type, **attr_options)
             else
               type
             end
 
-          attribute(name, cast_type, **options)
+          attribute(name, cast_type, **attr_options)
         end
       end
 

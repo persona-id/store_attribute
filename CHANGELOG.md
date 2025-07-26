@@ -2,6 +2,8 @@
 
 ## master
 
+- Fixed a bug when using store_attribute_register_attributes, default, and numericality validators (@mdayaram)
+
 ## 2.0.1 (2025-05-09) 🎇
 
 - Register store_attributes as attributes. ([@rickcsong](https://github.com/rickcsong))
